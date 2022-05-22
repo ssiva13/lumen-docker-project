@@ -1,0 +1,34 @@
+version: "3.5"
+
+services:
+  lumen:
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor/
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: php -S lumen:8080 -t public
+    restart: unless-stopped
+    depends_on:
+      - mysqldb
+
+
+  mysqldb:
+    image: mysql:8.0
+    env_file:
+      - .env
+    healthcheck:
+      test: nc -z 3306
+    restart: unless-stopped
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./database/mysql:/var/lib/mysql:rw
+
+
+volumes:
+  mysql-data:
